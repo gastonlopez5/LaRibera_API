@@ -14,6 +14,7 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Hosting;
+using System.IO;
 
 namespace LaRibera_API.Controllers
 {
@@ -92,10 +93,73 @@ namespace LaRibera_API.Controllers
         [HttpPost]
         public async Task<ActionResult<Usuario>> PostUsuario(Usuario usuario)
         {
-            _context.Usuarios.Add(usuario);
-            await _context.SaveChangesAsync();
+            try
+            {
+                Mensaje mensaje = new Mensaje();
+                string foto = null;
 
-            return CreatedAtAction("GetUsuario", new { id = usuario.Id }, usuario);
+                if (_context.Usuarios.Any(x => x.Email == usuario.Email))
+                {
+                    return BadRequest();
+                }
+                else
+                {
+                    string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                    password: usuario.Clave,
+                    salt: System.Text.Encoding.ASCII.GetBytes("Salt"),
+                    prf: KeyDerivationPrf.HMACSHA1,
+                    iterationCount: 1000,
+                    numBytesRequested: 256 / 8));
+
+                    usuario.Estado = true;
+                    usuario.Clave = hashed;
+
+                    if (usuario.FotoPerfil != null)
+                    {
+                        foto = usuario.FotoPerfil;
+                        usuario.FotoPerfil = "a";
+                    }
+
+                    _context.Usuarios.Add(usuario);
+                    await _context.SaveChangesAsync();
+
+                    if (usuario.FotoPerfil != null)
+                    {
+                        var user = _context.Usuarios.FirstOrDefault(x => x.Email == usuario.Email);
+                        var fileName = "fotoperfil.png";
+                        string wwwPath = environment.WebRootPath;
+                        string path = wwwPath + "/fotoperfil/" + user.Id;
+                        string filePath = "/fotoperfil/" + user.Id + "/" + fileName;
+                        string pathFull = Path.Combine(path, fileName);
+
+                        if (!Directory.Exists(path))
+                        {
+                            Directory.CreateDirectory(path);
+                        }
+
+                        using (var fileStream = new FileStream(pathFull, FileMode.Create))
+                        {
+                            var bytes = Convert.FromBase64String(foto);
+                            fileStream.Write(bytes, 0, bytes.Length);
+                            fileStream.Flush();
+                            user.FotoPerfil = filePath;
+                        }
+
+                        _context.Usuarios.Update(user);
+                        _context.SaveChanges();
+                    }
+
+                    mensaje.Msj = "Usuario registrado exitosamente! Ingrese por favor";
+
+                    return Ok(mensaje);
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+
+            //return CreatedAtAction("GetUsuario", new { id = usuario.Id }, usuario);
         }
 
         // DELETE: api/Usuarios/5
@@ -152,14 +216,20 @@ namespace LaRibera_API.Controllers
                         new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                     };
 
+                    var expiration = DateTime.Now.AddMinutes(60);
+
                     var token = new JwtSecurityToken(
                         issuer: config["TokenAuthentication:Issuer"],
                         audience: config["TokenAuthentication:Audience"],
                         claims: claims,
-                        expires: DateTime.Now.AddMinutes(60),
+                        expires: expiration,
                         signingCredentials: credenciales
                     );
-                    return Ok(new JwtSecurityTokenHandler().WriteToken(token));
+                    return Ok(new
+                    {
+                        token = new JwtSecurityTokenHandler().WriteToken(token),
+                        expiration = expiration
+                    });
                 }
             }
             catch (Exception ex)
