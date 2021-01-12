@@ -225,11 +225,8 @@ namespace LaRibera_API.Controllers
                         expires: expiration,
                         signingCredentials: credenciales
                     );
-                    return Ok(new
-                    {
-                        token = new JwtSecurityTokenHandler().WriteToken(token),
-                        expiration = expiration
-                    });
+
+                    return Ok(new JwtSecurityTokenHandler().WriteToken(token));
                 }
             }
             catch (Exception ex)
