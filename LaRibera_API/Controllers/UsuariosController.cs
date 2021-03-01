@@ -26,6 +26,7 @@ namespace LaRibera_API.Controllers
         private readonly DataContext _context;
         private readonly IConfiguration config;
         private readonly IHostingEnvironment environment;
+        private readonly Utilidades utilidades = new Utilidades();
 
         public UsuariosController(DataContext context, IConfiguration config, IHostingEnvironment environment)
         {
@@ -90,13 +91,16 @@ namespace LaRibera_API.Controllers
         // POST: api/Usuarios
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
-        [HttpPost]
+        [HttpPost("registrar")]
+        [AllowAnonymous]
         public async Task<ActionResult<Usuario>> PostUsuario(Usuario usuario)
         {
             try
             {
                 Mensaje mensaje = new Mensaje();
                 string foto = null;
+
+                usuario.Clave = "4321";
 
                 if (_context.Usuarios.Any(x => x.Email == usuario.Email))
                 {
@@ -111,7 +115,6 @@ namespace LaRibera_API.Controllers
                     iterationCount: 1000,
                     numBytesRequested: 256 / 8));
 
-                    usuario.Estado = true;
                     usuario.Clave = hashed;
 
                     if (usuario.FotoPerfil != null)
@@ -119,6 +122,8 @@ namespace LaRibera_API.Controllers
                         foto = usuario.FotoPerfil;
                         usuario.FotoPerfil = "a";
                     }
+
+                    if (usuario.RolId == 4) { usuario.GrupoId = 10; }
 
                     _context.Usuarios.Add(usuario);
                     await _context.SaveChangesAsync();
@@ -149,7 +154,21 @@ namespace LaRibera_API.Controllers
                         _context.SaveChanges();
                     }
 
-                    mensaje.Msj = "Usuario registrado exitosamente! Ingrese por favor";
+                    if (usuario.RolId == 4)
+                    {
+                        mensaje.Msj = "Usuario registrado exitosamente! Recibirá un msj con la contraseña para ingresar";
+
+                        //utilidades.EnciarCorreo(usuario.Email,
+                        //    "Club La Ribera - Alta de Usuario",
+                        //    "<h2>Gracias por registrarte " + usuario.Apellido + " " + usuario.Nombre + "!!</h2>" +
+                        //    "<p>Recuerda modificar la contraseña cuando ingreses.</p>" +
+                        //    "<br />" +
+                        //    "<p>Tu contraseña es: 4321");
+                    }
+                    else
+                    {
+                        mensaje.Msj = "Usuario registrado exitosamente! Una vez que te aprueben, reciviras un mail con tu contraseña";
+                    }
 
                     return Ok(mensaje);
                 }

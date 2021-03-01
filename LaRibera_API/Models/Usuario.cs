@@ -12,8 +12,10 @@ namespace LaRibera_API.Models
         [Key]
         public int Id { get; set; }
 
+        [Required]
         public string Email { get; set; }
 
+        [Required]
         public string Clave { get; set; }
 
         public int RolId { get; set; }
@@ -26,10 +28,13 @@ namespace LaRibera_API.Models
         [ForeignKey("GrupoId")]
         public Grupo Grupo { get; set; }
 
+        [Required]
         public string Nombre { get; set; }
 
+        [Required]
         public string Apellido { get; set; }
 
+        [Required]
         public string Telefono { get; set; }
 
         public string Dni { get; set; }
