@@ -97,81 +97,86 @@ namespace LaRibera_API.Controllers
         {
             try
             {
-                Mensaje mensaje = new Mensaje();
-                string foto = null;
-
-                usuario.Clave = "4321";
-
-                if (_context.Usuarios.Any(x => x.Email == usuario.Email))
+                if (ModelState.IsValid)
                 {
-                    return BadRequest();
-                }
-                else
-                {
-                    string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
-                    password: usuario.Clave,
-                    salt: System.Text.Encoding.ASCII.GetBytes("Salt"),
-                    prf: KeyDerivationPrf.HMACSHA1,
-                    iterationCount: 1000,
-                    numBytesRequested: 256 / 8));
+                    Mensaje mensaje = new Mensaje();
+                    string foto = null;
 
-                    usuario.Clave = hashed;
-
-                    if (usuario.FotoPerfil != null)
+                    if (_context.Usuarios.Any(x => x.Email == usuario.Email))
                     {
-                        foto = usuario.FotoPerfil;
-                        usuario.FotoPerfil = "a";
-                    }
-
-                    if (usuario.RolId == 4) { usuario.GrupoId = 10; }
-
-                    _context.Usuarios.Add(usuario);
-                    await _context.SaveChangesAsync();
-
-                    if (usuario.FotoPerfil != null)
-                    {
-                        var user = _context.Usuarios.FirstOrDefault(x => x.Email == usuario.Email);
-                        var fileName = "fotoperfil.png";
-                        string wwwPath = environment.WebRootPath;
-                        string path = wwwPath + "/fotoperfil/" + user.Id;
-                        string filePath = "/fotoperfil/" + user.Id + "/" + fileName;
-                        string pathFull = Path.Combine(path, fileName);
-
-                        if (!Directory.Exists(path))
-                        {
-                            Directory.CreateDirectory(path);
-                        }
-
-                        using (var fileStream = new FileStream(pathFull, FileMode.Create))
-                        {
-                            var bytes = Convert.FromBase64String(foto);
-                            fileStream.Write(bytes, 0, bytes.Length);
-                            fileStream.Flush();
-                            user.FotoPerfil = filePath;
-                        }
-
-                        _context.Usuarios.Update(user);
-                        _context.SaveChanges();
-                    }
-
-                    if (usuario.RolId == 4)
-                    {
-                        mensaje.Msj = "Usuario registrado exitosamente! Recibirá un msj con la contraseña para ingresar";
-
-                        //utilidades.EnciarCorreo(usuario.Email,
-                        //    "Club La Ribera - Alta de Usuario",
-                        //    "<h2>Gracias por registrarte " + usuario.Apellido + " " + usuario.Nombre + "!!</h2>" +
-                        //    "<p>Recuerda modificar la contraseña cuando ingreses.</p>" +
-                        //    "<br />" +
-                        //    "<p>Tu contraseña es: 4321");
+                        return BadRequest();
                     }
                     else
                     {
-                        mensaje.Msj = "Usuario registrado exitosamente! Una vez que te aprueben, reciviras un mail con tu contraseña";
-                    }
+                        string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                        password: usuario.Clave,
+                        salt: System.Text.Encoding.ASCII.GetBytes("Salt"),
+                        prf: KeyDerivationPrf.HMACSHA1,
+                        iterationCount: 1000,
+                        numBytesRequested: 256 / 8));
 
-                    return Ok(mensaje);
+                        usuario.Clave = hashed;
+                        usuario.TipoUsuario = null;
+
+                        if (usuario.FotoPerfil != null)
+                        {
+                            foto = usuario.FotoPerfil;
+                            usuario.FotoPerfil = "a";
+                        }
+
+                        _context.Usuarios.Add(usuario);
+                        await _context.SaveChangesAsync();
+
+                        if (usuario.FotoPerfil != null)
+                        {
+                            var user = _context.Usuarios.FirstOrDefault(x => x.Email == usuario.Email);
+                            var fileName = "fotoperfil.png";
+                            string wwwPath = environment.WebRootPath;
+                            string path = wwwPath + "/fotoperfil/" + user.Id;
+                            string filePath = "/fotoperfil/" + user.Id + "/" + fileName;
+                            string pathFull = Path.Combine(path, fileName);
+
+                            if (!Directory.Exists(path))
+                            {
+                                Directory.CreateDirectory(path);
+                            }
+
+                            using (var fileStream = new FileStream(pathFull, FileMode.Create))
+                            {
+                                var bytes = Convert.FromBase64String(foto);
+                                fileStream.Write(bytes, 0, bytes.Length);
+                                fileStream.Flush();
+                                user.FotoPerfil = filePath;
+                            }
+
+                            _context.Usuarios.Update(user);
+                            _context.SaveChanges();
+                        }
+
+                        if (usuario.RolId == 4)
+                        {
+                            mensaje.Msj = "Usuario registrado exitosamente! Recibirá un msj con la contraseña para ingresar";
+
+                            //utilidades.EnciarCorreo(usuario.Email,
+                            //    "Club La Ribera - Alta de Usuario",
+                            //    "<h2>Gracias por registrarte " + usuario.Apellido + " " + usuario.Nombre + "!!</h2>" +
+                            //    "<p>Recuerda modificar la contraseña cuando ingreses.</p>" +
+                            //    "<br />" +
+                            //    "<p>Tu contraseña es: 4321");
+                        }
+                        else
+                        {
+                            mensaje.Msj = "Usuario registrado exitosamente! Una vez que te aprueben, reciviras un mail con tu contraseña";
+                        }
+
+                        return Ok(mensaje);
+                    }
                 }
+                else
+                {
+                    return BadRequest();
+                }
+                
             }
             catch (Exception ex)
             {
