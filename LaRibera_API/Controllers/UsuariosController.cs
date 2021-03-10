@@ -116,7 +116,6 @@ namespace LaRibera_API.Controllers
                         numBytesRequested: 256 / 8));
 
                         usuario.Clave = hashed;
-                        usuario.TipoUsuario = null;
 
                         if (usuario.FotoPerfil != null)
                         {
@@ -133,7 +132,7 @@ namespace LaRibera_API.Controllers
                             var fileName = "fotoperfil.png";
                             string wwwPath = environment.WebRootPath;
                             string path = wwwPath + "/fotoperfil/" + user.Id;
-                            string filePath = "/fotoperfil/" + user.Id + "/" + fileName;
+                            string filePath = "/FotoPerfil/" + user.Id + "/" + fileName;
                             string pathFull = Path.Combine(path, fileName);
 
                             if (!Directory.Exists(path))
@@ -156,13 +155,6 @@ namespace LaRibera_API.Controllers
                         if (usuario.RolId == 4)
                         {
                             mensaje.Msj = "Usuario registrado exitosamente! Recibirá un msj con la contraseña para ingresar";
-
-                            //utilidades.EnciarCorreo(usuario.Email,
-                            //    "Club La Ribera - Alta de Usuario",
-                            //    "<h2>Gracias por registrarte " + usuario.Apellido + " " + usuario.Nombre + "!!</h2>" +
-                            //    "<p>Recuerda modificar la contraseña cuando ingreses.</p>" +
-                            //    "<br />" +
-                            //    "<p>Tu contraseña es: 4321");
                         }
                         else
                         {
