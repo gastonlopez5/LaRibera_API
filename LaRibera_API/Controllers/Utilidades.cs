@@ -31,5 +31,23 @@ namespace LaRibera_API.Controllers
 
             smtp.Dispose();
         }
+
+        public string GenerarCodigo()
+        {
+            Random obj = new Random();
+            string sCadena = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+            int longitud = sCadena.Length;
+            char cletra;
+            int nlongitud = 5;
+            string sNuevacadena = string.Empty;
+
+            for (int i = 0; i < nlongitud; i++)
+            {
+                cletra = sCadena[obj.Next(nlongitud)];
+                sNuevacadena += cletra.ToString();
+            }
+            return sNuevacadena;
+
+        }
     }
 }

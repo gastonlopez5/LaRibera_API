@@ -15,7 +15,6 @@ namespace LaRibera_API.Models
         [Required]
         public string Email { get; set; }
 
-        [Required]
         public string Clave { get; set; }
 
         public int RolId { get; set; }

@@ -101,6 +101,7 @@ namespace LaRibera_API.Controllers
                 {
                     Msj msj = new Msj();
                     string foto = null;
+                    Usuario user = new Usuario();
 
                     if (_context.Usuarios.Any(x => x.Email == usuario.Email))
                     {
@@ -108,14 +109,6 @@ namespace LaRibera_API.Controllers
                     }
                     else
                     {
-                        string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
-                        password: usuario.Clave,
-                        salt: System.Text.Encoding.ASCII.GetBytes("Salt"),
-                        prf: KeyDerivationPrf.HMACSHA1,
-                        iterationCount: 1000,
-                        numBytesRequested: 256 / 8));
-
-                        usuario.Clave = hashed;
 
                         if (usuario.FotoPerfil != null)
                         {
@@ -126,9 +119,10 @@ namespace LaRibera_API.Controllers
                         _context.Usuarios.Add(usuario);
                         await _context.SaveChangesAsync();
 
+                        user = _context.Usuarios.FirstOrDefault(x => x.Email == usuario.Email);
+
                         if (usuario.FotoPerfil != null)
                         {
-                            var user = _context.Usuarios.FirstOrDefault(x => x.Email == usuario.Email);
                             var fileName = "fotoperfil.png";
                             string wwwPath = environment.WebRootPath;
                             string path = wwwPath + "/fotoperfil/" + user.Id;
@@ -154,11 +148,32 @@ namespace LaRibera_API.Controllers
 
                         if (usuario.RolId == 4)
                         {
-                            msj.Mensaje = "Usuario registrado exitosamente! Recibirá un msj con la contraseña para ingresar";
+                            string pass = utilidades.GenerarCodigo();
+
+                            string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                                password: pass,
+                                salt: System.Text.Encoding.ASCII.GetBytes("Salt"),
+                                prf: KeyDerivationPrf.HMACSHA1,
+                                iterationCount: 1000,
+                                numBytesRequested: 256 / 8));
+
+                            user.Clave = hashed;
+
+                            _context.Usuarios.Update(user);
+                            _context.SaveChanges();
+
+                            utilidades.EnciarCorreo(usuario.Email,
+                                "Club La Ribera - Alta de usuario",
+                                "<h2>Bienvenido " + usuario.Apellido + " " + usuario.Nombre + "!!!</h2>" +
+                                "<p>Recuerda modificar la contraseña cuando ingreses.</p>" +
+                                "<br />" +
+                                "<p>Tu contraseña es: " + pass);
+
+                            msj.Mensaje = "Usuario registrado exitosamente! Recibirá un email con la contraseña para ingresar";
                         }
                         else
                         {
-                            msj.Mensaje = "Usuario registrado exitosamente! Una vez que te aprueben, reciviras un mail con tu contraseña";
+                            msj.Mensaje = "Usuario registrado exitosamente! Una vez que te aprueben, reciviras un email con tu contraseña";
                         }
 
                         return Ok(msj);
@@ -262,8 +277,10 @@ namespace LaRibera_API.Controllers
 
                 if (usuario != null)
                 {
+                    string pass = utilidades.GenerarCodigo();
+
                     string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
-                    password: "4321",
+                    password: pass,
                     salt: System.Text.Encoding.ASCII.GetBytes("Salt"),
                     prf: KeyDerivationPrf.HMACSHA1,
                     iterationCount: 1000,
@@ -279,7 +296,7 @@ namespace LaRibera_API.Controllers
                         "<h2>Recuperación de clave para " + usuario.Apellido + " " + usuario.Nombre + "</h2>" +
                         "<p>Recuerda modificar la contraseña cuando ingreses.</p>" +
                         "<br />" +
-                        "<p>Tu contraseña es: 4321");
+                        "<p>Tu contraseña es: " + pass);
 
                     msj.Mensaje = "Recibirá en su correo la contraseña para ingresar";
 
