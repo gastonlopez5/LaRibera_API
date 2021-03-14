@@ -167,7 +167,8 @@ namespace LaRibera_API.Controllers
                                 "<h2>Bienvenido " + usuario.Apellido + " " + usuario.Nombre + "!!!</h2>" +
                                 "<p>Recuerda modificar la contraseña cuando ingreses.</p>" +
                                 "<br />" +
-                                "<p>Tu contraseña es: " + pass);
+                                "<p>Tu contraseña es: " + pass + "</p>" +
+                                "<p>Este es un email generado automáticamente, no lo respondas.");
 
                             msj.Mensaje = "Usuario registrado exitosamente! Recibirá un email con la contraseña para ingresar";
                         }
@@ -296,7 +297,8 @@ namespace LaRibera_API.Controllers
                         "<h2>Recuperación de clave para " + usuario.Apellido + " " + usuario.Nombre + "</h2>" +
                         "<p>Recuerda modificar la contraseña cuando ingreses.</p>" +
                         "<br />" +
-                        "<p>Tu contraseña es: " + pass);
+                        "<p>Tu contraseña es: " + pass + "</p>" +
+                        "<p>Este es un email generado automáticamente, no lo respondas.");
 
                     msj.Mensaje = "Recibirá en su correo la contraseña para ingresar";
 
