@@ -99,7 +99,7 @@ namespace LaRibera_API.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    Mensaje mensaje = new Mensaje();
+                    Msj msj = new Msj();
                     string foto = null;
 
                     if (_context.Usuarios.Any(x => x.Email == usuario.Email))
@@ -154,14 +154,14 @@ namespace LaRibera_API.Controllers
 
                         if (usuario.RolId == 4)
                         {
-                            mensaje.Msj = "Usuario registrado exitosamente! Recibirá un msj con la contraseña para ingresar";
+                            msj.Mensaje = "Usuario registrado exitosamente! Recibirá un msj con la contraseña para ingresar";
                         }
                         else
                         {
-                            mensaje.Msj = "Usuario registrado exitosamente! Una vez que te aprueben, reciviras un mail con tu contraseña";
+                            msj.Mensaje = "Usuario registrado exitosamente! Una vez que te aprueben, reciviras un mail con tu contraseña";
                         }
 
-                        return Ok(mensaje);
+                        return Ok(msj);
                     }
                 }
                 else
@@ -248,6 +248,51 @@ namespace LaRibera_API.Controllers
             catch (Exception ex)
             {
                 return BadRequest(ex);
+            }
+        }
+
+        [HttpPost("recuperarpass")]
+        [AllowAnonymous]
+        public async Task<ActionResult> RecuperarPass([FromBody] string email)
+        {
+            try
+            {
+                var usuario = _context.Usuarios.FirstOrDefault(x => x.Email == email);
+                Msj msj = new Msj();
+
+                if (usuario != null)
+                {
+                    string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                    password: "4321",
+                    salt: System.Text.Encoding.ASCII.GetBytes("Salt"),
+                    prf: KeyDerivationPrf.HMACSHA1,
+                    iterationCount: 1000,
+                    numBytesRequested: 256 / 8));
+
+                    usuario.Clave = hashed;
+
+                    _context.Usuarios.Update(usuario);
+                    await _context.SaveChangesAsync();
+
+                    utilidades.EnciarCorreo(usuario.Email,
+                        "Club La Ribera - Blanqueo de clave",
+                        "<h2>Recuperación de clave para " + usuario.Apellido + " " + usuario.Nombre + "</h2>" +
+                        "<p>Recuerda modificar la contraseña cuando ingreses.</p>" +
+                        "<br />" +
+                        "<p>Tu contraseña es: 4321");
+
+                    msj.Mensaje = "Recibirá en su correo la contraseña para ingresar";
+
+                    return Ok(msj);
+                }
+                else
+                {
+                    return BadRequest();
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
             }
         }
     }

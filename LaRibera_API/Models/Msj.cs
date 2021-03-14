@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 
 namespace LaRibera_API.Models
 {
-    public class Mensaje
+    public class Msj
     {
-        public String Msj { get; set; }
+        public String Mensaje { get; set; }
     }
 }
