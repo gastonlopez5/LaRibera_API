@@ -5,6 +5,8 @@ VisualStudioVersion = 16.0.30709.132
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LaRibera_API", "LaRibera_API\LaRibera_API.csproj", "{5ECD6F37-17BD-4523-97BC-82FF7E2C3709}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LaRivera_WEB", "LaRivera_WEB\LaRivera_WEB.csproj", "{3F18FC48-2C7B-49B6-B217-3E843064D093}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{5ECD6F37-17BD-4523-97BC-82FF7E2C3709}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5ECD6F37-17BD-4523-97BC-82FF7E2C3709}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5ECD6F37-17BD-4523-97BC-82FF7E2C3709}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3F18FC48-2C7B-49B6-B217-3E843064D093}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F18FC48-2C7B-49B6-B217-3E843064D093}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F18FC48-2C7B-49B6-B217-3E843064D093}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F18FC48-2C7B-49B6-B217-3E843064D093}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -29,7 +29,7 @@ namespace LaRivera_WEB
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            //services.AddControllersWithViews();
+            services.AddControllersWithViews();
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>
@@ -56,6 +56,9 @@ namespace LaRivera_WEB
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
+            services.AddDbContext<DataContext>(
+                options => options.UseMySql(
+                    Configuration["ConnectionStrings:DefaultConnection"],null));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -73,7 +76,6 @@ namespace LaRivera_WEB
             }
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-            
             // Permitir cookies
             app.UseCookiePolicy(new CookiePolicyOptions
             {
@@ -90,7 +92,7 @@ namespace LaRivera_WEB
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Usuarios}/{action=Logout}/{id?}");
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
             });
         }
     }
