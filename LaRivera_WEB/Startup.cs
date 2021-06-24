@@ -48,10 +48,9 @@ namespace LaRivera_WEB
 
             services.AddAuthorization(options =>
             {
-                options.AddPolicy("Supervisor", policy => policy.RequireClaim(ClaimTypes.Role, "Supervisor"));
-                options.AddPolicy("Operador", policy => policy.RequireClaim(ClaimTypes.Role, "Operador"));
+                options.AddPolicy("Profesor", policy => policy.RequireClaim(ClaimTypes.Role, "Profesor"));
                 options.AddPolicy("Administrador", policy => policy.RequireClaim(ClaimTypes.Role, "Administrador"));
-                options.AddPolicy("AdministradorSupervisor", policy => policy.RequireClaim(ClaimTypes.Role, "Administrador", "Supervisor"));
+                options.AddPolicy("Administrador_Profesor", policy => policy.RequireClaim(ClaimTypes.Role, "Administrador", "Profesor"));
             });
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);

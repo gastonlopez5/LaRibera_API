@@ -13,5 +13,9 @@ namespace LaRivera_WEB.Models
 
         }
 
+        public DbSet<Usuario> Usuarios { get; set; }
+        public DbSet<Grupo> Grupos { get; set; }
+        public DbSet<TipoUsuario> Roles { get; set; }
+
     }
 }
